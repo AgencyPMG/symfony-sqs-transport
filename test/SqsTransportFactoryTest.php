@@ -12,18 +12,9 @@ use PMG\SqsTransport\SqsTransportFactory;
 
 class SqsTransportFactoryTest extends TestCase
 {
-    const LOCALSTACK = 'localhost:4576/queue/this-does-not-exist';
+    use ValidDsnProvider;
 
     private $factory, $serializer;
-
-    public static function validDsn()
-    {
-        yield 'sqs://' => ['sqs://'.self::LOCALSTACK, 'https://'.self::LOCALSTACK];
-
-        yield 'sqs+http://' => ['sqs+http://'.self::LOCALSTACK, 'http://'.self::LOCALSTACK];
-
-        yield 'sqs+https://' => ['sqs+https://'.self::LOCALSTACK, 'https://'.self::LOCALSTACK];
-    }
 
     /**
      * @dataProvider validDsn

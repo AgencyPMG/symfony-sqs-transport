@@ -15,7 +15,8 @@ use PMG\SqsTransport\Test\Fixtures\TestMessage;
 
 abstract class TestCase extends PHPUnitTestCase
 {
-    const DEFAULT_ENDPOINT = 'http://localhost:4576';
+    const LOCALSTACK = 'localhost:4576';
+    const DEFAULT_ENDPOINT = 'http://'.self::LOCALSTACK;
 
     protected static function createSqsClient() : SqsClient
     {
