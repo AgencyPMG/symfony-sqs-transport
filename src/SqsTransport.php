@@ -77,6 +77,7 @@ final class SqsTransport implements TransportInterface
         $filteredEnvelope = $envelope
             ->withoutAll(TransportMessageIdStamp::class)
             ->withoutAll(SqsReceiptHandleStamp::class)
+            ->withoutAll(DelayStamp::class)
             ->withoutStampsOfType(SqsAttributeStamp::class)
             ;
 
@@ -92,7 +93,7 @@ final class SqsTransport implements TransportInterface
             $sqsRequest['MessageAttributes'] = $attributes;
         }
 
-        $delayStamp = $filteredEnvelope->last(DelayStamp::class);
+        $delayStamp = $envelope->last(DelayStamp::class);
         if ($delayStamp instanceof DelayStamp) {
             // delay stamp is in milleseconds, SQS wants seconds
             $sqsRequest['DelaySeconds'] = ceil($delayStamp->getDelay() / 1000);
