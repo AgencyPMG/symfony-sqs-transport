@@ -15,7 +15,10 @@ use Symfony\Component\Messenger\Stamp\DelayStamp;
 use Symfony\Component\Messenger\Stamp\StampInterface;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
 use PMG\SqsTransport\SqsTransport;
+use PMG\SqsTransport\Stamp\SqsAttributeStamp;
 use PMG\SqsTransport\Stamp\SqsReceiptHandleStamp;
+use PMG\SqsTransport\Stamp\SqsStringAttributeStamp;
+use PMG\SqsTransport\Stamp\SqsNumberAttributeStamp;
 use PMG\SqsTransport\Test\Fixtures\TestMessage;
 
 abstract class TransportTestCase extends TestCase
@@ -110,11 +113,37 @@ abstract class TransportTestCase extends TestCase
         $this->transport->send($originalEnvelope);
 
         $received = iterator_to_array($this->transport->get());
-
+    
         $this->assertCount(1, $received);
         $this->assertEquals($originalEnvelope->getMessage(), $received[0]->getMessage());
 
         $this->transport->ack($received[0]);
+    }
+
+    public static function sqsAttributeStamps()
+    {
+        yield SqsStringAttributeStamp::class => [
+            new SqsStringAttributeStamp('attributeNameHere', 'value'),
+        ];
+
+        yield SqsNumberAttributeStamp::class => [
+            new SqsNumberAttributeStamp('attributeNameHere', 123),
+        ];
+    }
+
+    /**
+     * @dataProvider sqsAttributeStamps
+     */
+    public function testCustomMessageAttributesCanBeSentWithSqsAttributeStamp(SqsAttributeStamp $stamp)
+    {
+        $this->transport->send(self::createEnvelope(__FUNCTION__, $stamp));
+
+        $received = iterator_to_array($this->transport->get());
+
+        $this->assertCount(1, $received);
+        $stamps = $received[0]->all(get_class($stamp));
+        $this->assertCount(1, $stamps, 'transport should remove attribute stamps so they are not duplicated');
+        $this->assertEquals($stamp, $stamps[0]);
     }
 
     public static function setupBeforeClass() : void
@@ -143,11 +172,6 @@ abstract class TransportTestCase extends TestCase
     }
 
     abstract protected function createTransport(SqsClient $client) : SqsTransport;
-
-    protected static function createEnvelope(string $messageId, StampInterface ...$stamps) : Envelope
-    {
-        return new Envelope(new TestMessage(static::class.'::'.$messageId), $stamps);
-    }
 
     protected static function getQueueName() : string
     {

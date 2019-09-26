@@ -24,6 +24,7 @@ use Symfony\Component\Messenger\Exception\RuntimeException;
 use Symfony\Component\Messenger\Stamp\TransportMessageIdStamp;
 use Symfony\Component\Messenger\Stamp\DelayStamp;
 use PMG\SqsTransport\Exception\SqsTransportException;
+use PMG\SqsTransport\Stamp\SqsAttributeStamp;
 use PMG\SqsTransport\Stamp\SqsReceiptHandleStamp;
 
 /**
@@ -69,6 +70,7 @@ final class SqsTransport implements TransportInterface
         $filteredEnvelope = $envelope
             ->withoutAll(TransportMessageIdStamp::class)
             ->withoutAll(SqsReceiptHandleStamp::class)
+            ->withoutStampsOfType(SqsAttributeStamp::class)
             ;
 
         $encoded = $this->serializer->encode($filteredEnvelope);
@@ -78,7 +80,7 @@ final class SqsTransport implements TransportInterface
             'MessageBody' => $encoded['body'],
         ];
 
-        $attributes = $this->buildAttributesFromHeaders($encoded['headers'] ?? []);
+        $attributes = $this->buildMessageAttributes($envelope, $encoded);
         if ($attributes) {
             $sqsRequest['MessageAttributes'] = $attributes;
         }
@@ -159,11 +161,28 @@ final class SqsTransport implements TransportInterface
 
         return $envelope->with(
             new TransportMessageIdStamp($sqsMessage['MessageId']),
-            new SqsReceiptHandleStamp($sqsMessage['ReceiptHandle'])
+            new SqsReceiptHandleStamp($sqsMessage['ReceiptHandle']),
+            ...$this->extractStampsFromMessageAttributes($sqsMessage['MessageAttributes'] ?? [])
         );
     }
 
-    private function buildAttributesFromHeaders(array $headers) : array
+    private function buildMessageAttributes(Envelope $envelope, array $encoded) : array
+    {
+        $attributes = $this->buildHeaderMessageAttributes($encoded['headers'] ?? []);
+        foreach (self::flatten($envelope->all()) as $stamp) {
+            if (!$stamp instanceof SqsAttributeStamp) {
+                continue;
+            }
+            $attributes[$stamp->getAttributeName()] = [
+                'DataType' => $stamp->getAttributeDataType(),
+                $stamp->getAttributeValueKey() => $stamp->getAttributeValue(),
+            ];
+        }
+
+        return $attributes;
+    }
+
+    private function buildHeaderMessageAttributes(array $headers) : array
     {
         $attributes = [];
         foreach ($headers as $key => $value) {
@@ -176,11 +195,22 @@ final class SqsTransport implements TransportInterface
         return $attributes;
     }
 
+    private function extractStampsFromMessageAttributes(array $attributes) : iterable
+    {
+        foreach ($attributes as $key => $attribute) {
+            if (self::isHeaderAttribute($key)) {
+                continue;
+            }
+
+            yield SqsAttributeStamp::fromAttributeArray($key, $attribute);
+        }
+    }
+
     private function extractHeadersFromAttributes(array $attributes) : array
     {
         $headers = [];
         foreach ($attributes as $key => $attribute) {
-            if (0 !== strpos($key, self::HEADER_PREFIX)) {
+            if (!self::isHeaderAttribute($key)) {
                 continue;
             }
 
@@ -209,5 +239,21 @@ final class SqsTransport implements TransportInterface
     private static function attributeNameToHeaderName(string $attributeName) : string
     {
         return str_replace('__', '\\', substr($attributeName, strlen(self::HEADER_PREFIX)));
+    }
+
+    private static function isHeaderAttribute(string $attributeName) : bool
+    {
+        return 0 === strpos($attributeName, self::HEADER_PREFIX);
+    }
+
+    private static function flatten(iterable $iterables) : iterable
+    {
+        foreach ($iterables as $iterable) {
+            if (is_iterable($iterable)) {
+                yield from $iterable;
+            } else {
+                yield $iterable;
+            }
+        }
     }
 }
