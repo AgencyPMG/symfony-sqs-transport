@@ -34,7 +34,7 @@ use PMG\SqsTransport\Stamp\SqsReceiptHandleStamp;
  */
 final class SqsTransport implements TransportInterface
 {
-    const HEADER_PREFIX = 'SfHeader.';
+    private const HEADER_PREFIX = 'SfHeader.';
 
     /**
      * @var SqsClient
@@ -59,6 +59,11 @@ final class SqsTransport implements TransportInterface
         $this->sqsClient = $sqsClient;
         $this->config = $config;
         $this->serializer = $serializer ?? new PhpSerializer();
+    }
+
+    public function getConfig() : SqsTransportConfig
+    {
+        return $this->config;
     }
 
     /**

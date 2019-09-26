@@ -15,12 +15,14 @@ use PMG\SqsTransport\Test\Fixtures\TestMessage;
 
 abstract class TestCase extends PHPUnitTestCase
 {
+    const DEFAULT_ENDPOINT = 'http://localhost:4576';
+
     protected static function createSqsClient() : SqsClient
     {
         return new SqsClient([
             'version' => 'latest',
             'region' => 'us-east-1',
-            'endpoint' => getenv('SQS_ENDPOINT') ?: 'http://localhost:4576',
+            'endpoint' => getenv('SQS_ENDPOINT') ?: self::DEFAULT_ENDPOINT,
             'credentials' => [
                 'key' => 'localstack_ignores_this',
                 'secret' => 'localstack_ignores_this',

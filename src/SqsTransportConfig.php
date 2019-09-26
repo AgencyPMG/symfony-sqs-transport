@@ -7,6 +7,7 @@
 
 namespace PMG\SqsTransport;
 
+use function intval;
 use Symfony\Component\Messenger\Exception\InvalidArgumentException;
 
 /**
@@ -58,8 +59,8 @@ final class SqsTransportConfig
 
         return new self(
             $in['queue_url'],
-            $in['receive_count'] ?? null,
-            $in['receive_wait'] ?? null
+            isset($in['receive_count']) ? intval($in['receive_count']) : null,
+            isset($in['receive_wait']) ? intval($in['receive_wait']) : null
         );
     }
 
