@@ -1,0 +1,15 @@
+{
+    "name": "pmg/sqs-transport",
+    "description": "A Symfony Messenger transport for SQS",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "PMG",
+            "email": "tech@pmg.com"
+        }
+    ],
+    "require": {
+        "symfony/messenger": "^4.3"
+    }
+}
