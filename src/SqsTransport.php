@@ -8,6 +8,8 @@
 namespace PMG\SqsTransport;
 
 use function ceil;
+use function json_decode;
+use function json_encode;
 use function strlen;
 use function strpos;
 use function str_replace;
@@ -34,7 +36,7 @@ use PMG\SqsTransport\Stamp\SqsReceiptHandleStamp;
  */
 final class SqsTransport implements TransportInterface
 {
-    private const HEADER_PREFIX = 'SfHeader.';
+    private const HEADER_ATTRIBUTE = 'Symfony.Messenger.SerializerHeaders';
 
     /**
      * @var SqsClient
@@ -173,7 +175,18 @@ final class SqsTransport implements TransportInterface
 
     private function buildMessageAttributes(Envelope $envelope, array $encoded) : array
     {
-        $attributes = $this->buildHeaderMessageAttributes($encoded['headers'] ?? []);
+        $attributes = [];
+
+        $headers = $encoded['headers'] ?? null;
+        if ($headers) {
+            // this will `double_encode` any json that happens to be in the
+            // headers array. #yolo
+            $attributes[self::HEADER_ATTRIBUTE] = [
+                'DataType' => 'String',
+                'StringValue' => json_encode($headers),
+            ];
+        }
+
         foreach (self::flatten($envelope->all()) as $stamp) {
             if (!$stamp instanceof SqsAttributeStamp) {
                 continue;
@@ -187,23 +200,10 @@ final class SqsTransport implements TransportInterface
         return $attributes;
     }
 
-    private function buildHeaderMessageAttributes(array $headers) : array
-    {
-        $attributes = [];
-        foreach ($headers as $key => $value) {
-            $attributes[self::headerNameToAttributeName($key)] = [
-                'DataType' => 'String',
-                'StringValue' => $value,
-            ];
-        }
-
-        return $attributes;
-    }
-
     private function extractStampsFromMessageAttributes(array $attributes) : iterable
     {
         foreach ($attributes as $key => $attribute) {
-            if (self::isHeaderAttribute($key)) {
+            if (self::HEADER_ATTRIBUTE === $key) {
                 continue;
             }
 
@@ -213,42 +213,11 @@ final class SqsTransport implements TransportInterface
 
     private function extractHeadersFromAttributes(array $attributes) : array
     {
-        $headers = [];
-        foreach ($attributes as $key => $attribute) {
-            if (!self::isHeaderAttribute($key)) {
-                continue;
-            }
-
-            $headers[self::attributeNameToHeaderName($key)] = $attribute['StringValue'];
+        if (isset($attributes[self::HEADER_ATTRIBUTE])) {
+            return json_decode($attributes[self::HEADER_ATTRIBUTE]['StringValue'], true);
         }
 
-        return $headers;
-    }
-
-    /**
-     * Can't have backslashes in an attribute name, which is what symfony does
-     * for stamps in the `Serializer`.
-     *
-     * @see https://github.com/symfony/symfony/blob/master/src/Symfony/Component/Messenger/Transport/Serialization/Serializer.php
-     */
-    private static function headerNameToAttributeName(string $headerName) : string
-    {
-        return self::HEADER_PREFIX.str_replace('\\', '__', $headerName);
-    }
-
-    /**
-     * The reverse of `headerNameToAttributeName`
-     *
-     * @see https://github.com/symfony/symfony/blob/master/src/Symfony/Component/Messenger/Transport/Serialization/Serializer.php
-     */
-    private static function attributeNameToHeaderName(string $attributeName) : string
-    {
-        return str_replace('__', '\\', substr($attributeName, strlen(self::HEADER_PREFIX)));
-    }
-
-    private static function isHeaderAttribute(string $attributeName) : bool
-    {
-        return 0 === strpos($attributeName, self::HEADER_PREFIX);
+        return [];
     }
 
     private static function flatten(iterable $iterables) : iterable
