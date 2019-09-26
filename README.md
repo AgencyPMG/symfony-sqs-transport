@@ -99,3 +99,10 @@ $messageBus->dispatch(new YourMessage(), [
 **SQS Has a limit of 10 attributes per message**, but the transport will
 generally use at least one attribute to send the `headers` from the transport
 serializer.
+
+## On Retries
+
+The symfony messenger worker modifies an envelope with some retry metadata.
+Since messages in SQS cannot be modified in place, we just put a new message
+into the queue when that happens and the subsequent call to `ack` removes the
+existing message.
