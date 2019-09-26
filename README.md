@@ -95,3 +95,7 @@ $messageBus->dispatch(new YourMessage(), [
   new SqsNumberAttributeStamp('numberAttributeName', 123),
 ]);
 ```
+
+**SQS Has a limit of 10 attributes per message**, but the transport will
+generally use at least one attribute to send the `headers` from the transport
+serializer.
