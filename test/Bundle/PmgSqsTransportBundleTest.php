@@ -12,7 +12,7 @@ use PMG\SqsTransport\Test\TestCase;
 use PMG\SqsTransport\Test\ValidDsnProvider;
 use PMG\SqsTransport\SqsTransport;
 
-class PmgSqsTransportBundlTest extends TestCase
+class PmgSqsTransportBundleTest extends TestCase
 {
     use ValidDsnProvider;
 
