@@ -21,6 +21,10 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 - Added support for Symfony 5.4
 
+### Changed
+
+- Dropped support for PHP 7.4
+
 ## v0.1.0
 
 First Release!
