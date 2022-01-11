@@ -118,7 +118,7 @@ final class SqsTransport implements TransportInterface
                 'QueueUrl' => $this->config->getQueueUrl(),
                 'MaxNumberOfMessages' => $this->config->getReceiveCount(),
                 'WaitTimeSeconds' => $this->config->getReceiveWait(),
-                'MessageAttributeNames' => ['.*'],
+                'MessageAttributeNames' => ['All'],
             ]);
         } catch (Exception $e) {
             throw SqsTransportException::wrap($e);

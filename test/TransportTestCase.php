@@ -153,6 +153,7 @@ abstract class TransportTestCase extends TestCase
         $queues = self::$sqsClient->listQueues([
             'QueueNamePrefix' => self::getQueueName(),
         ]);
+
         if (empty($queues['QueueUrls'])) {
             $response = self::$sqsClient->createQueue([
                 'QueueName' => self::getQueueName(),
