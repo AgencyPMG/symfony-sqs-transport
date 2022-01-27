@@ -27,7 +27,7 @@ class PmgSqsTransportExtension extends ConfigurableExtension
         return 'https://symfony-bundles.pmg.com/schema/dic/sqs-transport-bundle';
     }
 
-    public function getXsdValidationBasePath()
+    public function getXsdValidationBasePath() : string|false
     {
         return false;
     }
