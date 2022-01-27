@@ -66,6 +66,9 @@ class TestKernel extends Kernel
 
         $container->loadFromExtension('framework', [
             'secret' => 'shhhh',
+            'router' => [
+                'utf8' => true,
+            ],
             'test' => true,
             'messenger' => [
                 'transports' => $this->transportConfig,
