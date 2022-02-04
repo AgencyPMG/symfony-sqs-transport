@@ -163,8 +163,13 @@ final class SqsTransport implements TransportInterface
     private function sqsMessagetoEnvelope(array $sqsMessage) : Envelope
     {
         $envelope = $this->serializer->decode([
+            // these two keys, `body` and `headers` play nice with the built in
+            // implementations of `SerializerInterface`
             'body' => $sqsMessage['Body'],
             'headers' => $this->extractHeadersFromAttributes($sqsMessage['MessageAttributes'] ?? []),
+            // but incase one wants to write their own, custom serializer
+            // we provide the entire, raw SQS message as well.
+            'aws_sqs_message' => $sqsMessage,
         ]);
 
         return $envelope->with(
