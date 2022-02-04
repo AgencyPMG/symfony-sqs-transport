@@ -15,6 +15,13 @@ This project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Deprecations
 
+## v0.3.0
+
+### Added
+
+- The entire SQS message is now passed to the serializer in case a custom
+  serialiazer wishes to do something special with it.
+
 ## v0.2.0
 
 ### Added
