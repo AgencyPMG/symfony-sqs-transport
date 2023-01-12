@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+set -e
+
+pushd "$(git rev-parse --show-toplevel)"
+
+./bin/dev/wait_for_localstack
+
+exec php vendor/bin/phpunit -v
