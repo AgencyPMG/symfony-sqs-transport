@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+pushd "$(git rev-parse --show-toplevel)"
+
+rm -f var/localstack/ready
+
+exec docker-compose up -d

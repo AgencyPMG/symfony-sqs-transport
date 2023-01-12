@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+set -e
+
+count=0
+found="no"
+while [ "$count" -lt 5 ]; do
+    if [ -f "./var/localstack/ready" ]; then
+        found="yes"
+        break
+    fi
+
+    echo "waiting for localstack"
+    sleep 5
+    count=$((count+1))
+done
+
+if [ "$found" = "yes" ]; then
+    exit 0
+else
+    echo "localstack did not start up in time"
+    exit 1
+fi
