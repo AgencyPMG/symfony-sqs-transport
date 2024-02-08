@@ -12,19 +12,22 @@ jobs:
 
     strategy:
       matrix:
-        include:
-          - php-version: 8.0
-          - php-version: 8.1
-          - php-version: 8.2
+        php-version:
+          - '8.2'
+          - '8.3'
+        composer-command:
+          - composer install
+          - composer update --prefer-lowest
 
     steps:
       - name: checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: start localstack
         run: ./bin/dev/up
       - name: PHP
         uses: ./.github/actions/setup-php
         with:
-          php-version: "${{ matrix.php-version }}"
+          php-version: ${{ matrix.php-version }}
+          composer-command: ${{ matrix.composer-command }}
       - name: tests
         run: ./bin/dev/unittest

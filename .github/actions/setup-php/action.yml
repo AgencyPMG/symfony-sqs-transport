@@ -8,6 +8,10 @@ inputs:
     type: string
     description: the php version to use, defaults to 8.2
     default: '8.2'
+  composer-command:
+    require: false
+    type: string
+    default: composer install
 
 runs:
   using: composite
@@ -34,4 +38,4 @@ runs:
 
       - name: install php dependencies
         shell: bash
-        run: composer install --no-interaction --no-progress
+        run: ${{ inputs.composer-command }} --no-interaction --no-progress

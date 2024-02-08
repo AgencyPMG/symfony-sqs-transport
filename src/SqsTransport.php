@@ -96,7 +96,7 @@ final class SqsTransport implements TransportInterface
         $delayStamp = $envelope->last(DelayStamp::class);
         if ($delayStamp instanceof DelayStamp) {
             // delay stamp is in milleseconds, SQS wants seconds
-            $sqsRequest['DelaySeconds'] = ceil($delayStamp->getDelay() / 1000);
+            $sqsRequest['DelaySeconds'] = intval(ceil($delayStamp->getDelay() / 1000));
         }
 
         try {
