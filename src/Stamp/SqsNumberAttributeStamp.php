@@ -29,9 +29,9 @@ final class SqsNumberAttributeStamp extends SqsAttributeStamp
         $this->value = $value;
     }
 
-    public function getAttributeValue()
+    public function getAttributeValue() : string
     {
-        return $this->value;
+        return (string) $this->value;
     }
 
     public function getAttributeDataType() : string
