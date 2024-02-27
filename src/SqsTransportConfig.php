@@ -46,6 +46,7 @@ final class SqsTransportConfig
         ?int $receiveCount=null,
         ?int $receiveWait=null
     ) {
+        trigger_deprecation('PMG/SqsTransport', '0', 'This class is deprecated. Use Alli\Platform\Bundle\SqsTransport\SqsTransportConfig instead.');
         $this->queueUrl = $queueUrl;
         $this->receiveCount = self::validateReceiveCount($receiveCount ?? self::DEFAULT_RECEIVE_COUNT);
         $this->receiveWait = self::validateReceiveWait($receiveWait ?? self::DEFAULT_RECEIVE_WAIT);

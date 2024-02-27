@@ -1,5 +1,12 @@
 # SQS Symfony Messenger Transport
 
+:warning: **DEPRECATION NOTICE**: This project is no longer maintained and might not work as expected.
+Use [Alli Platform Bundle](https://github.com/AgencyPMG/alli-platform-bundle/tree/master/src/SqsTransport) instead.
+Check this migration guide for more information:
+[Migrating from PMG SQS Transport to Alli Platform Bundle](https://agencypmg.atlassian.net/wiki/spaces/ALLISDK/pages/3012395009/Alli+Platform+Bundle+0.32+Upgrade+Guide)
+
+***
+
 ## Installation
 
 ```

@@ -58,6 +58,7 @@ final class SqsTransport implements TransportInterface
         SqsTransportConfig $config,
         ?SerializerInterface $serializer=null
     ) {
+        trigger_deprecation('PMG/SqsTransport', '0', 'This class is deprecated. Use Alli\Platform\Bundle\SqsTransport\SqsTransport instead.');
         $this->sqsClient = $sqsClient;
         $this->config = $config;
         $this->serializer = $serializer ?? new PhpSerializer();

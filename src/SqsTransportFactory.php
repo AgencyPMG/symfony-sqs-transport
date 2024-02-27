@@ -27,6 +27,7 @@ final class SqsTransportFactory implements TransportFactoryInterface
 
     public function __construct(SqsClient $sqsClient)
     {
+        trigger_deprecation('PMG/SqsTransport', '0', 'This class is deprecated. Use Alli\Platform\Bundle\SqsTransport\SqsTransportFactory instead.');
         $this->sqsClient = $sqsClient;
     }
 
